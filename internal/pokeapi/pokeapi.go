@@ -61,11 +61,22 @@ func (svc *ApiService) GetLocations(url string) (*PaginatedLocations, error) {
 	return data, nil
 }
 
+type LocationArea struct {
+	PKMNEncounters []struct {
+		PKMN struct {
+			Name string `json:"name"`
+		} `json:"pokemon"`
+	} `json:"pokemon_encounters"`
+}
+
 func (svc *ApiService) GetPokemon(name string) ([]string, error) {
+	var data LocationArea
 	if v, ok := svc.cache.Get(name); ok {
 		log.Debug("Using cached data")
-		log.Print(string(v))
-		// ...handle the data
+		err := json.Unmarshal(v, &data)
+		if err != nil {
+			return nil, err
+		}
 	} else {
 		log.Debug("Fetching explore data")
 		url := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%s", name)
@@ -73,7 +84,19 @@ func (svc *ApiService) GetPokemon(name string) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
+		log.Debug("Caching fetched explore data")
+		svc.cache.Add(url, rawData)
+		err = json.Unmarshal(rawData, &data)
+		if err != nil {
+			return nil, err
+		}
 	}
+	result := make([]string, len(data.PKMNEncounters))
+	for i, pkmn := range data.PKMNEncounters {
+		result[i] = pkmn.PKMN.Name
+	}
+	return result, nil
+
 }
 
 func (svc *ApiService) Get(url string) ([]byte, error) {
