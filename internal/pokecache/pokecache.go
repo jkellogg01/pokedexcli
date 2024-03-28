@@ -19,10 +19,10 @@ type cacheEntry struct {
 
 func NewCache(interval time.Duration) *Cache {
 	result := &Cache{
-        entries: make(map[string]cacheEntry),
-        mu: new(sync.Mutex),
-    }
-    log.Debug("Initiating cache reaping loop")
+		entries: make(map[string]cacheEntry),
+		mu:      new(sync.Mutex),
+	}
+	log.Debug("Initiating cache reaping loop")
 	go result.reapLoop(interval)
 	return result
 }
@@ -47,7 +47,7 @@ func (c *Cache) reapLoop(interval time.Duration) {
 	if interval <= 0 {
 
 	}
-	tick := time.NewTicker(interval.Truncate(time.Second))
+	tick := time.NewTicker(interval)
 	for range tick.C {
 		c.mu.Lock()
 		for k, v := range c.entries {
