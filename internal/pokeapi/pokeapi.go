@@ -37,28 +37,16 @@ func (svc *ApiService) GetLocations(url string) (*PaginatedLocations, error) {
 	if url == "" {
 		url = "https://pokeapi.co/api/v2/location-area/?offset=0&limit=20"
 	}
-	data := new(PaginatedLocations)
-	if v, ok := svc.cache.Get(url); ok {
-		log.Debug("Using cached data")
-		err := json.Unmarshal(v, &data)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		log.Debug("Fetching map data")
-		rawData, err := svc.Get(url)
-		if err != nil {
-			return nil, err
-		}
-		log.Debug("Caching fetched map data")
-		svc.cache.Add(url, rawData)
-		log.Debug("Decoding JSON response")
-		err = json.Unmarshal(rawData, &data)
-		if err != nil {
-			return nil, err
-		}
+	raw, err := svc.Get(url)
+	if err != nil {
+		return nil, err
 	}
-	return data, nil
+	data := new(PaginatedLocations)
+	err = json.Unmarshal(raw, &data)
+	if err != nil {
+		return nil, err
+	}
+	return data, err
 }
 
 type LocationArea struct {
@@ -69,37 +57,29 @@ type LocationArea struct {
 	} `json:"pokemon_encounters"`
 }
 
-func (svc *ApiService) GetPokemon(name string) ([]string, error) {
+func (svc *ApiService) GetLocationPkmn(name string) ([]string, error) {
 	var data LocationArea
-	if v, ok := svc.cache.Get(name); ok {
-		log.Debug("Using cached data")
-		err := json.Unmarshal(v, &data)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		log.Debug("Fetching explore data")
-		url := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%s", name)
-		rawData, err := svc.Get(url)
-		if err != nil {
-			return nil, err
-		}
-		log.Debug("Caching fetched explore data")
-		svc.cache.Add(url, rawData)
-		err = json.Unmarshal(rawData, &data)
-		if err != nil {
-			return nil, err
-		}
+	url := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%s", name)
+	raw, err := svc.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(raw, &data)
+	if err != nil {
+		return nil, err
 	}
 	result := make([]string, len(data.PKMNEncounters))
 	for i, pkmn := range data.PKMNEncounters {
 		result[i] = pkmn.PKMN.Name
 	}
 	return result, nil
-
 }
 
 func (svc *ApiService) Get(url string) ([]byte, error) {
+	data, ok := svc.cache.Get(url)
+	if ok {
+		return data, nil
+	}
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -108,9 +88,10 @@ func (svc *ApiService) Get(url string) ([]byte, error) {
 	if res.StatusCode/100 != 2 {
 		return nil, fmt.Errorf("API returned non-2XX status: %v", res.Status)
 	}
-	raw, err := io.ReadAll(res.Body)
+	data, err = io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
-	return raw, nil
+	svc.cache.Add(url, data)
+	return data, nil
 }

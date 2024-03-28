@@ -169,7 +169,7 @@ func handleExplore(cfg *config, args []string) error {
 		return nil
 	}
 	fmt.Printf("Exploring %s...\n", args[0])
-	pkmns, err := cfg.api.GetPokemon(args[0])
+	pkmns, err := cfg.api.GetLocationPkmn(args[0])
 	if err != nil {
 		return err
 	}
