@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -17,7 +18,7 @@ const prompt string = "pokedex > "
 type cliCommand struct {
 	name string
 	desc string
-	hand func(*config) error
+	hand func(*config, []string) error
 }
 
 type config struct {
@@ -70,9 +71,10 @@ func main() {
 			}
 			fmt.Println("Please type a command.\nType 'help' for more information")
 		}
-		cmd := input.Text()
+		cmd, args := readCommand(input.Text())
 		if c, ok := commands[cmd]; ok {
-			err := c.hand(cfg)
+			log.Debugf("command: %s args: %v", cmd, args)
+			err := c.hand(cfg, args)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -100,7 +102,15 @@ func initConfig(commands map[string]cliCommand) *config {
 	}
 }
 
-func handleMap(cfg *config) error {
+func readCommand(in string) (string, []string) {
+	vals := strings.Split(in, " ")
+	if len(vals) <= 1 {
+		return in, []string{}
+	}
+	return vals[0], vals[1:]
+}
+
+func handleMap(cfg *config, args []string) error {
 	url := cfg.nextLoc
 	data, err := cfg.api.GetLocations(url)
 	if err != nil {
@@ -122,7 +132,7 @@ func handleMap(cfg *config) error {
 	return nil
 }
 
-func handleMapb(cfg *config) error {
+func handleMapb(cfg *config, args []string) error {
 	url := cfg.prevLoc
 	if url == "" {
 		fmt.Println("Error: already on first page.")
@@ -148,7 +158,7 @@ func handleMapb(cfg *config) error {
 	return nil
 }
 
-func handleHelp(cfg *config) error {
+func handleHelp(cfg *config, args []string) error {
 	if cfg.helpMsg == "" {
 		return errors.New("help message unexpectedly empty")
 	}
@@ -156,7 +166,7 @@ func handleHelp(cfg *config) error {
 	return nil
 }
 
-func handleExit(cfg *config) error {
+func handleExit(cfg *config, args []string) error {
 	os.Exit(0)
 	return fmt.Errorf("os.Exit did not work...")
 }
