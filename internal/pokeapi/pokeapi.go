@@ -80,6 +80,20 @@ type Pokemon struct {
 	BaseXP int    `json:"base_experience"`
 }
 
+func (svc *ApiService) GetPkmn(name string) (Pokemon, error) {
+	url := fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%s", name)
+	raw, err := svc.Get(url)
+	if err != nil {
+		return Pokemon{}, err
+	}
+	var data Pokemon
+	err = json.Unmarshal(raw, &data)
+	if err != nil {
+		return Pokemon{}, err
+	}
+	return data, nil
+}
+
 func (svc *ApiService) Get(url string) ([]byte, error) {
 	data, ok := svc.cache.Get(url)
 	if ok {
