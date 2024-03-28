@@ -56,6 +56,11 @@ func main() {
 			desc: "moves the map backwards, displaying location information",
 			hand: handleMapb,
 		},
+		"explore": {
+			name: "explore",
+			desc: "explores a location-area, revealing nearby pokemon",
+			hand: handleExplore,
+		},
 	}
 	log.Debug("Command map created")
 	cfg := initConfig(commands)
@@ -73,7 +78,7 @@ func main() {
 		}
 		cmd, args := readCommand(input.Text())
 		if c, ok := commands[cmd]; ok {
-			log.Debugf("command: %s args: %v", cmd, args)
+			log.Debug("", "command", cmd, "args", args)
 			err := c.hand(cfg, args)
 			if err != nil {
 				log.Fatal(err)
@@ -159,6 +164,18 @@ func handleMapb(cfg *config, args []string) error {
 }
 
 func handleExplore(cfg *config, args []string) error {
+	if len(args) != 1 {
+		fmt.Println("Usage: explore <location_area>\nType 'help' for more information")
+		return nil
+	}
+	fmt.Printf("Exploring %s...\n", args[0])
+	pkmns, err := cfg.api.GetPokemon(args[0])
+	if err != nil {
+		return err
+	}
+	for _, pkmn := range pkmns {
+		fmt.Println(pkmn)
+	}
 	return nil
 }
 
