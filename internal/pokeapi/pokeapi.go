@@ -21,19 +21,19 @@ func NewApiService(interval time.Duration) ApiService {
 	return ApiService{cache: cache}
 }
 
-type PaginatedLocations struct {
-	Count   int               `json:"count"`
-	Next    *string           `json:"next"`
-	Prev    *string           `json:"previous"`
-	Results []LocationGeneral `json:"results"`
+type ResourceList struct {
+	Count   int           `json:"count"`
+	Next    *string       `json:"next"`
+	Prev    *string       `json:"previous"`
+	Results []APIResource `json:"results"`
 }
 
-type LocationGeneral struct {
+type APIResource struct {
 	Name string `json:"name"`
 	Url  string `json:"url"`
 }
 
-func (svc *ApiService) GetLocations(url string) (*PaginatedLocations, error) {
+func (svc *ApiService) GetLocations(url string) (*ResourceList, error) {
 	if url == "" {
 		url = "https://pokeapi.co/api/v2/location-area/?offset=0&limit=20"
 	}
@@ -41,7 +41,7 @@ func (svc *ApiService) GetLocations(url string) (*PaginatedLocations, error) {
 	if err != nil {
 		return nil, err
 	}
-	data := new(PaginatedLocations)
+	data := new(ResourceList)
 	err = json.Unmarshal(raw, &data)
 	if err != nil {
 		return nil, err
@@ -76,8 +76,45 @@ func (svc *ApiService) GetLocationPkmn(name string) ([]string, error) {
 }
 
 type Pokemon struct {
-	Name   string `json:"name"`
-	BaseXP int    `json:"base_experience"`
+	Name      string        `json:"name"`
+	BaseXP    int           `json:"base_experience"`
+	Height    int           `json:"height"`
+	IsDefault bool          `json:"is_default"`
+	Order     int           `json:"order"`
+	Weight    int           `json:"weight"`
+	Abilities []PkmnAbility `json:"abilities"`
+	Forms     []APIResource `json:"forms"`
+	Moves     []PkmnMove    `json:"moves"`
+	Stats     []PkmnStat    `json:"stats"`
+	Types     []PkmnType    `json:"types"`
+}
+
+type PkmnAbility struct {
+	IsHidden bool        `json:"is_hidden"`
+	Slot     int         `json:"slot"`
+	Ability  APIResource `json:"ability"`
+}
+
+type PkmnMove struct {
+	Move                APIResource       `json:"move"`
+	VersionGroupDetails []PkmnMoveVersion `json:"version_group_details"`
+}
+
+type PkmnMoveVersion struct {
+	LearnMethod  APIResource `json:"move_learn_method"`
+	VersionGroup APIResource `json:"version_group"`
+	LearnedAt    int         `json:"level_learned_at"`
+}
+
+type PkmnStat struct {
+	Stat      APIResource `json:"stat"`
+	EffortVal int         `json:"effort"`
+	Base      int         `json:"base_stat"`
+}
+
+type PkmnType struct {
+	Slot int         `json:"slot"`
+	Type APIResource `json:"type"`
 }
 
 func (svc *ApiService) GetPkmn(name string) (Pokemon, error) {
