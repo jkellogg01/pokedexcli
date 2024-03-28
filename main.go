@@ -61,6 +61,11 @@ func main() {
 			desc: "explores a location-area, revealing nearby pokemon",
 			hand: handleExplore,
 		},
+		"catch": {
+			name: "catch",
+			desc: "attempts to catch a pokemon",
+			hand: handleCatch,
+		},
 	}
 	log.Debug("Command map created")
 	cfg := initConfig(commands)
@@ -177,6 +182,20 @@ func handleExplore(cfg *config, args []string) error {
 	for _, pkmn := range pkmns {
 		fmt.Printf("- %s\n", pkmn)
 	}
+	return nil
+}
+
+func handleCatch(cfg *config, args []string) error {
+    if len(args) != 1 {
+        fmt.Println("Usage: catch <pokemon>\nType 'help' for more information")
+        return nil
+    }
+    fmt.Printf("Throwing a Pokeball at %s...\n", args[0])
+    pkmn, err := cfg.api.GetPkmn(args[0])
+    if err != nil {
+        return err
+    }
+    fmt.Printf("%+v", pkmn)
 	return nil
 }
 
