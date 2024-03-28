@@ -158,6 +158,10 @@ func handleMapb(cfg *config, args []string) error {
 	return nil
 }
 
+func handleExplore(cfg *config, args []string) error {
+	return nil
+}
+
 func handleHelp(cfg *config, args []string) error {
 	if cfg.helpMsg == "" {
 		return errors.New("help message unexpectedly empty")
