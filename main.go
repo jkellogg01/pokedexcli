@@ -13,7 +13,7 @@ import (
 	"github.com/jkellogg01/pokedexcli/internal/pokeapi"
 )
 
-const prompt string = "pokedex > "
+const prompt string = "\npokedex > "
 
 type cliCommand struct {
 	name string
@@ -65,7 +65,7 @@ func main() {
 	log.Debug("Command map created")
 	cfg := initConfig(commands)
 	log.Debug("Config struct initialized")
-	log.Print("Starting pokedex cli...\nType 'help' for more information\n")
+	log.Print("Starting pokedex cli...\nType 'help' for more information")
 	input := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print(prompt)
@@ -95,7 +95,7 @@ func initConfig(commands map[string]cliCommand) *config {
 	var helpMsg string
 	for k, v := range commands {
 		log.Debugf("Registering command: %s", k)
-		helpMsg += fmt.Sprintf("%5s -- %s\n", k, v.desc)
+		helpMsg += fmt.Sprintf("%8s -- %s\n", k, v.desc)
 	}
 	log.Debug("Initializing api service")
 	api := pokeapi.NewApiService(time.Minute * 3)
@@ -173,8 +173,9 @@ func handleExplore(cfg *config, args []string) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("Found Pokemon:")
 	for _, pkmn := range pkmns {
-		fmt.Println(pkmn)
+		fmt.Printf("- %s\n", pkmn)
 	}
 	return nil
 }
