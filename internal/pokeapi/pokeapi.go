@@ -75,6 +75,11 @@ func (svc *ApiService) GetLocationPkmn(name string) ([]string, error) {
 	return result, nil
 }
 
+type Pokemon struct {
+	Name   string `json:"name"`
+	BaseXP int    `json:"base_experience"`
+}
+
 func (svc *ApiService) Get(url string) ([]byte, error) {
 	data, ok := svc.cache.Get(url)
 	if ok {
