@@ -1,5 +1,8 @@
 TARGET := "pokedexcli"
 
+dev: build
+	bin/$(TARGET) -v
+
 run: build
 	bin/$(TARGET)
 
