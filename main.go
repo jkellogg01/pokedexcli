@@ -5,6 +5,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"math"
+	"math/rand"
 	"os"
 	"strings"
 	"time"
@@ -186,16 +188,22 @@ func handleExplore(cfg *config, args []string) error {
 }
 
 func handleCatch(cfg *config, args []string) error {
-    if len(args) != 1 {
-        fmt.Println("Usage: catch <pokemon>\nType 'help' for more information")
-        return nil
-    }
-    fmt.Printf("Throwing a Pokeball at %s...\n", args[0])
-    pkmn, err := cfg.api.GetPkmn(args[0])
-    if err != nil {
-        return err
-    }
-    fmt.Printf("%+v", pkmn)
+	if len(args) != 1 {
+		fmt.Println("Usage: catch <pokemon>\nType 'help' for more information")
+		return nil
+	}
+	fmt.Printf("Throwing a Pokeball at %s...\n", args[0])
+	pkmn, err := cfg.api.GetPkmn(args[0])
+	if err != nil {
+		return err
+	}
+	catch := rand.Intn(pkmn.BaseXP)
+	if int(math.Pow(float64(catch), 2)) > pkmn.BaseXP {
+		// catch logic: add to pokedex
+		fmt.Printf("%s was caught!", pkmn.Name)
+	} else {
+		fmt.Printf("%s escaped!", pkmn.Name)
+	}
 	return nil
 }
 
