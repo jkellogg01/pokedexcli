@@ -69,6 +69,11 @@ func main() {
 			desc: "attempts to catch a pokemon",
 			hand: handleCatch,
 		},
+		"inspect": {
+			name: "inspect",
+			desc: "inspects a caught pokemon",
+			hand: handleInspect,
+		},
 	}
 	log.Debug("Command map created")
 	cfg := initConfig(commands)
@@ -201,7 +206,7 @@ func handleCatch(cfg *config, args []string) error {
 	}
 	catch := rand.Intn(pkmn.BaseXP)
 	if int(math.Pow(float64(catch), 2)) > pkmn.BaseXP {
-        cfg.dex[pkmn.Name] = pkmn
+		cfg.dex[pkmn.Name] = pkmn
 		fmt.Printf("%s was caught!", pkmn.Name)
 	} else {
 		fmt.Printf("%s escaped!", pkmn.Name)
