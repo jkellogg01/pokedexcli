@@ -28,6 +28,7 @@ type config struct {
 	nextLoc string
 	prevLoc string
 	api     pokeapi.ApiService
+	dex     map[string]pokeapi.Pokemon
 }
 
 func main() {
@@ -111,6 +112,7 @@ func initConfig(commands map[string]cliCommand) *config {
 		prevLoc: "",
 		helpMsg: helpMsg,
 		api:     api,
+		dex:     make(map[string]pokeapi.Pokemon),
 	}
 }
 
@@ -199,7 +201,7 @@ func handleCatch(cfg *config, args []string) error {
 	}
 	catch := rand.Intn(pkmn.BaseXP)
 	if int(math.Pow(float64(catch), 2)) > pkmn.BaseXP {
-		// catch logic: add to pokedex
+        cfg.dex[pkmn.Name] = pkmn
 		fmt.Printf("%s was caught!", pkmn.Name)
 	} else {
 		fmt.Printf("%s escaped!", pkmn.Name)
