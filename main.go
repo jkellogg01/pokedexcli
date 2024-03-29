@@ -74,6 +74,11 @@ func main() {
 			desc: "inspects a caught pokemon",
 			hand: handleInspect,
 		},
+		"pokedex": {
+			name: "pokedex",
+			desc: "lists all caught pokemon",
+			hand: handlePokedex,
+		},
 	}
 	log.Debug("Command map created")
 	cfg := initConfig(commands)
