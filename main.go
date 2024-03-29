@@ -214,6 +214,39 @@ func handleCatch(cfg *config, args []string) error {
 	return nil
 }
 
+func handleInspect(cfg *config, args []string) error {
+	if len(args) != 1 {
+		fmt.Println("Usage: inspect <pokemon>\nType 'help' for more information")
+		return nil
+	}
+	pkmn, ok := cfg.dex[args[0]]
+	if !ok {
+		fmt.Printf("You have not caught %s yet!\n", args[0])
+		return nil
+	}
+	var (
+		statBlock string
+		typeBlock string
+	)
+	for _, s := range pkmn.Stats {
+		statBlock += fmt.Sprintf("\t-%s: %v\n", s.Stat.Name, s.Base+s.EffortVal)
+	}
+	for _, t := range pkmn.Types {
+		typeBlock += fmt.Sprintf("\t- %s\n", t.Type.Name)
+	}
+	fmt.Printf(`
+Name: %s
+Height: %d
+Weight: %d
+Stats:
+%s
+Types:
+%s
+`, pkmn.Name, pkmn.Height, pkmn.Weight, statBlock, typeBlock,
+	)
+	return nil
+}
+
 func handleHelp(cfg *config, args []string) error {
 	if cfg.helpMsg == "" {
 		return errors.New("help message unexpectedly empty")
