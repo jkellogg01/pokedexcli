@@ -252,6 +252,17 @@ Types:
 	return nil
 }
 
+func handlePokedex(cfg *config, args []string) error {
+	if len(cfg.dex) < 1 {
+		fmt.Println("you have not caught anything yet!")
+		return nil
+	}
+	for pkmn := range cfg.dex {
+		fmt.Printf("- %s\n", pkmn)
+	}
+	return nil
+}
+
 func handleHelp(cfg *config, args []string) error {
 	if cfg.helpMsg == "" {
 		return errors.New("help message unexpectedly empty")
